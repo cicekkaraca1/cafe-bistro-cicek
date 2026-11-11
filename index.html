@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#171717">
+<title>Café Bistro Çiçek</title>
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#101010;--panel:#1b1b1b;--panel2:#242424;--text:#f6f2ec;--muted:#b8b0a6;--accent:#f07832;--accent2:#d84a35;--line:#38332f;--good:#76c893;--warn:#f0c36a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:18px 20px;background:linear-gradient(110deg,#171717,#26201d);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:900;font-size:22px;color:#17110d}.brand h1{font-size:20px;margin:0}.brand small{color:var(--muted)}
+.status{font-size:12px;color:var(--good);border:1px solid #3a6649;padding:7px 10px;border-radius:30px}
+nav{display:flex;gap:7px;padding:12px 16px;overflow:auto;background:#151515;border-bottom:1px solid var(--line)}
+nav button,.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:10px;font-weight:650;cursor:pointer;white-space:nowrap}
+nav button.active,.btn.primary{background:linear-gradient(120deg,var(--accent),var(--accent2));border-color:transparent;color:#1a100b}
+button:active{transform:scale(.98)}main{max-width:1200px;margin:auto;padding:18px}
+.view{display:none}.view.active{display:block}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:13px}
+.card h3{margin:0 0 12px;font-size:16px}.metric{font-size:28px;font-weight:800;margin-top:5px}.muted{color:var(--muted)}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.between{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+input,select{background:#101010;color:var(--text);border:1px solid #514940;border-radius:9px;padding:11px;min-width:0;width:100%;font:inherit}
+label{display:block;color:var(--muted);font-size:13px;margin:8px 0 5px}.field{flex:1;min-width:130px}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px}
+.product{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:left;color:var(--text);cursor:pointer;min-height:90px}
+.product strong{display:block;margin-bottom:6px}.product span{color:var(--accent);font-weight:750}
+table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:10px 7px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:12px}
+.qty{display:flex;gap:6px;align-items:center}.qty button{padding:4px 9px}
+.pill{font-size:12px;padding:4px 8px;border-radius:20px;background:#34302b;color:#f3c49f}
+.total{font-size:26px;font-weight:850;color:var(--accent)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.danger{color:#ff9b8b}.good{color:var(--good)}.small{font-size:12px}
+.empty{padding:22px;text-align:center;color:var(--muted)}
+footer{padding:22px;text-align:center;color:#82796f;font-size:12px}
+@media(max-width:600px){header{padding:14px}main{padding:12px}nav{padding:10px}.metric{font-size:24px}td,th{padding:8px 4px;font-size:13px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="logo">Ç</div><div><h1>Café Bistro Çiçek</h1><small>Deine Bistro-Verwaltung</small></div></div>
+ <div class="status" id="connection">● Offline-fähig · Daten lokal</div>
+</header>
+<nav id="tabs">
+ <button class="active" data-tab="home">Übersicht</button><button data-tab="order">Bestellung</button><button data-tab="menu">Speisekarte</button><button data-tab="stock">Warenbestand</button><button data-tab="reports">Umsatz</button><button data-tab="settings">Daten & Einstellungen</button>
+</nav>
+<main>
+<section class="view active" id="home">
+ <div class="between"><div><h2>Guten Tag!</h2><p class="muted">Hier siehst du den aktuellen Stand deines Bistros.</p></div><span class="pill" id="today"></span></div>
+ <div class="grid">
+  <div class="card"><div class="muted">Umsatz heute</div><div class="metric" id="todaySales">0,00 €</div></div>
+  <div class="card"><div class="muted">Bestellungen heute</div><div class="metric" id="todayOrders">0</div></div>
+  <div class="card"><div class="muted">Artikel im Sortiment</div><div class="metric" id="productCount">0</div></div>
+  <div class="card"><div class="muted">Niedriger Bestand</div><div class="metric" id="lowStock">0</div></div>
+ </div>
+ <div class="card"><div class="between"><h3>Letzte Bestellungen</h3><button class="btn" onclick="showTab('reports')">Alle Umsätze</button></div><div id="recentOrders"></div></div>
+ <div class="card"><h3>Schnellzugriff</h3><div class="actions"><button class="btn primary" onclick="showTab('order')">＋ Neue Bestellung</button><button class="btn" onclick="showTab('menu')">Speisekarte bearbeiten</button><button class="btn" onclick="showTab('stock')">Bestand prüfen</button></div></div>
+</section>
+
+<section class="view" id="order">
+ <div class="between"><div><h2>Neue Bestellung</h2><p class="muted">Artikel antippen, um sie hinzuzufügen.</p></div><button class="btn" onclick="clearCart()">Warenkorb leeren</button></div>
+ <div class="grid" style="grid-template-columns:minmax(0,1.5fr) minmax(280px,1fr)">
+  <div class="card"><div class="row"><div class="field"><label>Kategorie</label><select id="categoryFilter" onchange="renderOrderProducts()"><option value="Alle">Alle Kategorien</option></select></div><div class="field"><label>Suche</label><input id="productSearch" placeholder="Artikel suchen…" oninput="renderOrderProducts()"></div></div><div class="product-grid" id="orderProducts"></div></div>
+  <div class="card"><h3>Warenkorb</h3><div id="cartItems" class="empty">Noch keine Artikel ausgewählt.</div><div class="between" style="margin-top:14px"><strong>Gesamt</strong><span class="total" id="cartTotal">0,00 €</span></div><label>Zahlungsart</label><select id="payment"><option>Bar</option><option>Karte</option><option>Sonstiges</option></select><label>Notiz (optional)</label><input id="orderNote" placeholder="z. B. Tisch 3"><div class="actions"><button class="btn primary" style="flex:1" onclick="finishOrder()">Bestellung abschließen</button></div><p class="small muted">Hinweis: Diese App ist ein Verwaltungs-Prototyp, kein zertifiziertes Kassensystem.</p></div>
+ </div>
+</section>
+
+<section class="view" id="menu">
+ <div class="between"><div><h2>Speisekarte verwalten</h2><p class="muted">Artikel, Kategorien und Preise bearbeiten.</p></div><button class="btn primary" onclick="openProductForm()">＋ Artikel hinzufügen</button></div>
+ <div class="card"><p class="small muted">Bei Artikeln mit „Preis fehlt“ ist noch kein bestätigter Preis hinterlegt. Diese Artikel können erst nach Eingabe des Preises verkauft werden.</p><div class="row"><div class="field"><label>Suche</label><input id="menuSearch" placeholder="Artikel suchen…" oninput="renderMenu()"></div><div class="field"><label>Kategorie</label><select id="menuCategory" onchange="renderMenu()"><option value="Alle">Alle Kategorien</option></select></div></div><div id="menuTable"></div></div>
+ <div class="card" id="productForm" style="display:none"><h3 id="formTitle">Artikel hinzufügen</h3><div class="row"><div class="field"><label>Name</label><input id="pName" placeholder="z. B. Currywurst mit Pommes"></div><div class="field"><label>Kategorie</label><input id="pCategory" placeholder="z. B. Speisen"></div></div><div class="row"><div class="field"><label>Verkaufspreis (€)</label><input id="pPrice" type="number" min="0" step=".01" placeholder="0,00"></div><div class="field"><label>Bestand (Stück, optional)</label><input id="pStock" type="number" min="0" step="1" placeholder="leer = nicht verwaltet"></div><div class="field"><label>Mindestbestand</label><input id="pMin" type="number" min="0" step="1" value="5"></div></div><div class="actions"><button class="btn primary" onclick="saveProduct()">Speichern</button><button class="btn" onclick="closeProductForm()">Abbrechen</button></div></div>
+</section>
+
+<section class="view" id="stock">
+ <div class="between"><div><h2>Warenbestand</h2><p class="muted">Bestände und Wareneingänge verwalten.</p></div></div>
+ <div class="card"><div id="stockTable"></div></div>
+</section>
+
+<section class="view" id="reports">
+ <div class="between"><div><h2>Umsatz & Tagesabschluss</h2><p class="muted">Übersicht der in dieser App erfassten Verkäufe.</p></div><button class="btn" onclick="exportCSV()">Umsätze als CSV</button></div>
+ <div class="grid"><div class="card"><div class="muted">Gesamtumsatz</div><div class="metric" id="allSales">0,00 €</div></div><div class="card"><div class="muted">Verkäufe gesamt</div><div class="metric" id="allOrders">0</div></div><div class="card"><div class="muted">Bar</div><div class="metric" id="cashSales">0,00 €</div></div><div class="card"><div class="muted">Karte</div><div class="metric" id="cardSales">0,00 €</div></div></div>
+ <div class="card"><div class="between"><h3>Verkaufsverlauf</h3><button class="btn danger" onclick="clearSales()">Verkäufe löschen</button></div><div id="salesTable"></div></div>
+</section>
+
+<section class="view" id="settings">
+ <h2>Daten & Einstellungen</h2>
+ <div class="card"><h3>Datensicherung</h3><p class="muted">Exportiere regelmäßig eine Sicherung. Die Daten bleiben zunächst auf diesem Gerät und in diesem Browser.</p><div class="actions"><button class="btn primary" onclick="backup()">Sicherung herunterladen (JSON)</button><label class="btn" style="display:inline-block">Sicherung importieren<input type="file" accept="application/json" onchange="restore(event)" style="display:none"></label></div></div>
+ <div class="card"><h3>Hinweise</h3><ul class="muted"><li>Die App speichert Daten lokal im Browser.</li><li>Ohne Internet kannst du sie nach dem ersten Laden weiterverwenden, wenn sie als PWA installiert und vom Browser zwischengespeichert wurde.</li><li>Für mehrere Geräte gibt es noch keine automatische Synchronisierung.</li><li>Vor dem echten Kassenbetrieb sind insbesondere TSE, DSFinV-K, Belegausgabe und steuerliche Anforderungen gesondert zu prüfen. Dieser Prototyp ersetzt kein gesetzeskonformes Kassensystem.</li></ul></div>
+ <div class="card"><h3>Demo-Daten zurücksetzen</h3><p class="muted">Setzt Sortiment und Verkäufe auf den Startzustand zurück.</p><button class="btn danger" onclick="resetDemo()">Startdaten wiederherstellen</button></div>
+</section>
+</main>
+<footer>Café Bistro Çiçek · Offline-Verwaltungsprototyp · Version 0.1</footer>
+<script>
+const starterProducts = [
+ {id:1,name:"Chicken Nuggets (6 Stück)",category:"Speisen",price:null,stock:null,min:0},
+ {id:2,name:"Chicken Nuggets (9 Stück)",category:"Speisen",price:null,stock:null,min:0},
+ {id:3,name:"Portion Pommes",category:"Beilagen",price:4.00,stock:null,min:0},
+ {id:4,name:"Hähnchen-Schnitzel mit Pommes",category:"Speisen",price:null,stock:null,min:0},
+ {id:5,name:"Puten-Schnitzel mit Pommes",category:"Speisen",price:null,stock:null,min:0},
+ {id:6,name:"Rinder-Gulasch-Schnitzel mit Pommes",category:"Speisen",price:null,stock:null,min:0},
+ {id:7,name:"Currywurst mit Pommes",category:"Speisen",price:7.99,stock:null,min:0},
+ {id:8,name:"Hamburger (ohne Käse und Salat)",category:"Burger",price:4.50,stock:null,min:0},
+ {id:9,name:"Cheeseburger (ohne Salat)",category:"Burger",price:5.00,stock:null,min:0},
+ {id:10,name:"Hähnchen-Schnitzel-Burger",category:"Burger",price:null,stock:null,min:0},
+ {id:11,name:"Hamburger Menü (ohne Getränk)",category:"Menüs",price:8.50,stock:null,min:0},
+ {id:12,name:"Cheeseburger Menü (ohne Getränk)",category:"Menüs",price:9.00,stock:null,min:0},
+ {id:13,name:"Käsekuchen",category:"Kuchen",price:null,stock:null,min:0},
+ {id:14,name:"Schokoladenkuchen",category:"Kuchen",price:null,stock:null,min:0},
+ {id:15,name:"Matjes-Semmel",category:"Brotzeit",price:null,stock:null,min:0},
+ {id:16,name:"Lachs-Semmel",category:"Brotzeit",price:null,stock:null,min:0},
+ {id:17,name:"Kuskus-Salat",category:"Brotzeit",price:null,stock:null,min:0},
+ {id:18,name:"Hummus",category:"Brotzeit",price:null,stock:null,min:0},
+ {id:19,name:"Köfte-Bowl",category:"Speisen",price:null,stock:null,min:0},
+ {id:20,name:"Zwiebelmett-Brot",category:"Brotzeit",price:3.50,stock:null,min:0},
+ {id:21,name:"Leberwurstbrot",category:"Brotzeit",price:3.50,stock:null,min:0},
+ {id:22,name:"Obatzda mit 2 Scheiben Brot",category:"Brotzeit",price:5.00,stock:null,min:0},
+ {id:23,name:"Alkoholfreies Getränk (0,5 l)",category:"Getränke alkoholfrei",price:2.20,stock:null,min:0},
+ {id:24,name:"Bier (verschiedene Sorten)",category:"Bier",price:2.50,stock:null,min:0},
+ {id:25,name:"Zoigl vom Fass (0,5 l, sonntags)",category:"Bier",price:2.50,stock:null,min:0},
+ {id:26,name:"Kaffee",category:"Heißgetränke",price:2.50,stock:null,min:0},
+ {id:27,name:"Espresso",category:"Heißgetränke",price:2.50,stock:null,min:0},
+ {id:28,name:"Cappuccino",category:"Heißgetränke",price:3.00,stock:null,min:0},
+ {id:29,name:"Doppelter Espresso",category:"Heißgetränke",price:3.50,stock:null,min:0},
+ {id:30,name:"Verschiedene Teesorten",category:"Heißgetränke",price:null,stock:null,min:0},
+ {id:31,name:"Weißweinschorle (0,2 l)",category:"Wein & Aperitif",price:null,stock:null,min:0},
+ {id:32,name:"Aperol Spritz",category:"Wein & Aperitif",price:null,stock:null,min:0}
+];
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+let products=load("cicek_products",starterProducts), sales=load("cicek_sales",[]), cart={}, editId=null;
+// Catalog update: add missing Çiçek items and refresh the known prices without deleting custom entries.
+(function migrateCatalog(){
+ const byName=new Map(products.map(p=>[String(p.name).toLocaleLowerCase("de-DE"),p]));
+ starterProducts.forEach(seed=>{
+   const existing=byName.get(seed.name.toLocaleLowerCase("de-DE"));
+   if(existing){
+     existing.category=seed.category;
+     existing.price=seed.price;
+   } else {
+     products.push({...seed,id:Math.max(Date.now(),...products.map(p=>Number(p.id)||0))+products.length});
+   }
+ });
+ localStorage.setItem("cicek_products",JSON.stringify(products));
+})();
+const money=n=>Number(n||0).toLocaleString("de-DE",{style:"currency",currency:"EUR"});
+const priceLabel=n=>n===null||n===undefined||n===""?"Preis fehlt":money(n);
+const save=()=>{localStorage.setItem("cicek_products",JSON.stringify(products));localStorage.setItem("cicek_sales",JSON.stringify(sales));renderAll()};
+const dateKey=d=>new Date(d).toLocaleDateString("sv-SE");
+document.getElementById("today").textContent=new Date().toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+function showTab(t){document.querySelectorAll(".view").forEach(x=>x.classList.toggle("active",x.id===t));document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.tab===t));renderAll()}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+function categories(){return [...new Set(products.map(p=>p.category).filter(Boolean))].sort()}
+function fillCategories(){["categoryFilter","menuCategory"].forEach(id=>{let el=document.getElementById(id),v=el.value;el.innerHTML='<option>Alle Kategorien</option>'+categories().map(c=>`<option>${esc(c)}</option>`).join("");el.value=[...el.options].some(o=>o.value===v)?v:"Alle"})}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function renderOrderProducts(){let cat=document.getElementById("categoryFilter").value, q=document.getElementById("productSearch").value.toLowerCase();let list=products.filter(p=>(cat==="Alle"||p.category===cat)&&p.name.toLowerCase().includes(q));document.getElementById("orderProducts").innerHTML=list.map(p=>`<button class="product" ${p.price===null?'disabled title="Bitte zuerst Preis in der Speisekarte eintragen"':''} onclick="addCart(${p.id})"><strong>${esc(p.name)}</strong><span>${priceLabel(p.price)}</span></button>`).join("")||'<div class="empty">Keine Artikel gefunden.</div>'}
+function addCart(id){const p=products.find(x=>x.id===id);if(!p||p.price===null){alert("Für diesen Artikel fehlt noch der Verkaufspreis. Bitte zuerst unter Speisekarte eintragen.");return}cart[id]=(cart[id]||0)+1;renderCart()}
+function changeQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];renderCart()}
+function renderCart(){let items=Object.entries(cart).map(([id,q])=>({p:products.find(x=>x.id==id),q})).filter(x=>x.p);document.getElementById("cartItems").innerHTML=items.length?items.map(({p,q})=>`<div class="between" style="padding:8px 0;border-bottom:1px solid var(--line)"><div style="flex:1"><strong>${esc(p.name)}</strong><div class="small muted">${priceLabel(p.price)} × ${q}</div></div><div class="qty"><button class="btn" onclick="changeQty(${p.id},-1)">−</button><b>${q}</b><button class="btn" onclick="changeQty(${p.id},1)">＋</button></div></div>`).join(""):'<div class="empty">Noch keine Artikel ausgewählt.</div>';document.getElementById("cartTotal").textContent=money(items.reduce((s,x)=>s+x.p.price*x.q,0))}
+function clearCart(){cart={};renderCart()}
+function finishOrder(){let items=Object.entries(cart).map(([id,q])=>{let p=products.find(x=>x.id==id);return p?{id:p.id,name:p.name,price:p.price,qty:q}:null}).filter(Boolean);if(!items.length){alert("Bitte zuerst Artikel auswählen.");return}let total=items.reduce((s,x)=>s+x.price*x.qty,0);sales.unshift({id:Date.now(),date:new Date().toISOString(),items,total,payment:document.getElementById("payment").value,note:document.getElementById("orderNote").value});items.forEach(it=>{let p=products.find(x=>x.id===it.id);if(p&&p.stock!==null)p.stock=Math.max(0,p.stock-it.qty)});cart={};document.getElementById("orderNote").value="";save();alert("Bestellung gespeichert: "+money(total));showTab("home")}
+function openProductForm(id=null){editId=id;let p=products.find(x=>x.id===id);document.getElementById("productForm").style.display="block";document.getElementById("formTitle").textContent=p?"Artikel bearbeiten":"Artikel hinzufügen";document.getElementById("pName").value=p?.name||"";document.getElementById("pCategory").value=p?.category||"Speisen";document.getElementById("pPrice").value=p?.price??"";document.getElementById("pStock").value=p?.stock??"";document.getElementById("pMin").value=p?.min??5;document.getElementById("productForm").scrollIntoView({behavior:"smooth"})}
+function closeProductForm(){document.getElementById("productForm").style.display="none";editId=null}
+function saveProduct(){let name=document.getElementById("pName").value.trim(),category=document.getElementById("pCategory").value.trim(),price=Number(document.getElementById("pPrice").value),stockVal=document.getElementById("pStock").value;if(!name||!category||!Number.isFinite(price)||price<0){alert("Bitte Name, Kategorie und gültigen Preis eingeben.");return}let data={name,category,price,stock:stockVal===""?null:Math.max(0,Number(stockVal)),min:Math.max(0,Number(document.getElementById("pMin").value)||0)};if(editId){Object.assign(products.find(p=>p.id===editId),data)}else products.push({id:Date.now(),...data});closeProductForm();save()}
+function deleteProduct(id){if(confirm("Artikel wirklich löschen?")){products=products.filter(p=>p.id!==id);save()}}
+function renderMenu(){let q=(document.getElementById("menuSearch")?.value||"").toLowerCase(),cat=document.getElementById("menuCategory")?.value||"Alle";let list=products.filter(p=>(cat==="Alle"||p.category===cat)&&p.name.toLowerCase().includes(q));document.getElementById("menuTable").innerHTML=list.length?`<table><thead><tr><th>Artikel</th><th>Kategorie</th><th>Preis</th><th>Aktion</th></tr></thead><tbody>${list.map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${priceLabel(p.price)}</td><td><button class="btn" onclick="openProductForm(${p.id})">Bearbeiten</button> <button class="btn danger" onclick="deleteProduct(${p.id})">×</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty">Noch keine Artikel.</div>'}
+function renderStock(){let list=products.filter(p=>p.stock!==null);document.getElementById("stockTable").innerHTML=list.length?`<table><thead><tr><th>Artikel</th><th>Bestand</th><th>Mindestbestand</th><th>Wareneingang</th></tr></thead><tbody>${list.map(p=>`<tr><td>${esc(p.name)}</td><td class="${p.stock<=p.min?'danger':'good'}">${p.stock}</td><td>${p.min}</td><td><button class="btn" onclick="addStock(${p.id})">＋ Bestand</button></td></tr>`).join("")}</tbody></table><p class="small muted">Artikel ohne eingetragenen Bestand werden hier nicht angezeigt. Bestand wird beim Verkauf automatisch reduziert.</p>`:'<div class="empty">Noch kein Lagerbestand aktiviert. Öffne die Speisekarte und trage bei einem Artikel einen Bestand ein.</div>'}
+function addStock(id){let p=products.find(x=>x.id===id),n=prompt("Wie viele Stück kommen hinzu?", "1");if(n===null)return;n=Number(n);if(!Number.isFinite(n)||n<=0){alert("Bitte eine positive Zahl eingeben.");return}p.stock=(p.stock||0)+n;save()}
+function renderReports(){let total=sales.reduce((s,x)=>s+x.total,0),cash=sales.filter(x=>x.payment==="Bar").reduce((s,x)=>s+x.total,0),card=sales.filter(x=>x.payment==="Karte").reduce((s,x)=>s+x.total,0);document.getElementById("allSales").textContent=money(total);document.getElementById("allOrders").textContent=sales.length;document.getElementById("cashSales").textContent=money(cash);document.getElementById("cardSales").textContent=money(card);document.getElementById("salesTable").innerHTML=sales.length?`<table><thead><tr><th>Datum</th><th>Artikel</th><th>Zahlung</th><th>Gesamt</th></tr></thead><tbody>${sales.map(s=>`<tr><td>${new Date(s.date).toLocaleString("de-DE")}</td><td>${s.items.map(i=>`${i.qty}× ${esc(i.name)}`).join("<br>")}${s.note?`<div class="small muted">${esc(s.note)}</div>`:""}</td><td>${esc(s.payment)}</td><td>${money(s.total)}</td></tr>`).join("")}</tbody></table>`:'<div class="empty">Noch keine Verkäufe erfasst.</div>'}
+function renderHome(){let today=dateKey(new Date()),ts=sales.filter(s=>dateKey(s.date)===today),sum=ts.reduce((a,s)=>a+s.total,0);document.getElementById("todaySales").textContent=money(sum);document.getElementById("todayOrders").textContent=ts.length;document.getElementById("productCount").textContent=products.length;document.getElementById("lowStock").textContent=products.filter(p=>p.stock!==null&&p.stock<=p.min).length;document.getElementById("recentOrders").innerHTML=sales.slice(0,5).map(s=>`<div class="between" style="padding:8px 0;border-bottom:1px solid var(--line)"><span>${new Date(s.date).toLocaleString("de-DE")} · ${s.items.length} Positionen</span><strong>${money(s.total)}</strong></div>`).join("")||'<div class="empty">Noch keine Bestellungen.</div>'}
+function renderAll(){fillCategories();renderOrderProducts();renderCart();renderMenu();renderStock();renderReports();renderHome()}
+function backup(){let blob=new Blob([JSON.stringify({products,sales},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cicek-sicherung-"+dateKey(new Date())+".json";a.click();URL.revokeObjectURL(a.href)}
+function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.products)||!Array.isArray(d.sales))throw 0;if(confirm("Vorhandene Daten durch Sicherung ersetzen?")){products=d.products;sales=d.sales;save();alert("Sicherung importiert.")}}catch{alert("Datei konnte nicht gelesen werden.")}};r.readAsText(f);e.target.value=""}
+function exportCSV(){let rows=[["Datum","Artikel","Menge","Einzelpreis","Zahlungsart","Gesamt","Notiz"]];sales.forEach(s=>s.items.forEach(i=>rows.push([new Date(s.date).toLocaleString("de-DE"),i.name,i.qty,i.price,s.payment,s.total,s.note||""])));let csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(";")).join("\r\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="cicek-umsatz.csv";a.click();URL.revokeObjectURL(a.href)}
+function clearSales(){if(confirm("Alle erfassten Verkäufe endgültig löschen?")){sales=[];save()}}
+function resetDemo(){if(confirm("Alle Daten auf Startzustand zurücksetzen?")){products=starterProducts.map(x=>({...x}));sales=[];cart={};save();alert("Startdaten wiederhergestellt.")}}
+renderAll();
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body></html>

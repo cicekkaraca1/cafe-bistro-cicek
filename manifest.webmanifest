@@ -1,0 +1,9 @@
+{
+  "name": "Café Bistro Çiçek",
+  "short_name": "Çiçek Bistro",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#101010",
+  "theme_color": "#171717",
+  "description": "Offlinefähige Bistro-Verwaltung"
+}
